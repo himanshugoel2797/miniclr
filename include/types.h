@@ -8,7 +8,6 @@
 
 #include <stdint.h>
 
-typedef uint32_t AssemblyHashAlg_t;
 typedef uint32_t Blob_t;
 typedef uint32_t String_t;
 typedef uint32_t Parent_t;

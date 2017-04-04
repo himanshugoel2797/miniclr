@@ -1,30 +1,29 @@
 // Copyright (c) 2017 Himanshu Goel
-// 
+//
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
 #ifndef MINICLR_PLATFORM_H_
 #define MINICLR_PLATFORM_H_
 
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #ifdef __linux__
 
-//Enable support for both 64 bit and 32 bit executables
+// Enable support for both 64 bit and 32 bit executables
 #define PE_32_BIT
 #define PE_64_BIT
 
-
 #elif __CARDINAL__
 
-//Enable support for only 64 bit executables
+// Enable support for only 64 bit executables
 #define PE_64_BIT
 
 #endif
 
 #ifdef __x86_64__
-#define bitcnt(x) __builtin_popcount(x)
+#define bitcntll(x) __builtin_popcountll(x)
 #endif
 
 #ifndef p_malloc
@@ -36,8 +35,8 @@
 #endif
 
 #ifdef __ORDER_LITTLE_ENDIAN__
-#define p_memtole16(x) *(uint16_t*)(x)
-#define p_memtole32(x) *(uint32_t*)(x)
+#define p_memtole16(x) *(uint16_t *)(x)
+#define p_memtole32(x) *(uint32_t *)(x)
 #elif __ORDER_BIG_ENDIAN__
 
 #endif

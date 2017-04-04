@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 
+#include "metadata.h"
 #include "pe_int.h"
 #include "types.h"
 
@@ -46,25 +47,78 @@ typedef struct {
 } MetadataStreamHeader;
 
 typedef enum {
-  AssemblyFlags_None = 0,
+  AssemblyHashAlgorithm_None = 0,
+  AssemblyHashAlgorithm_Reserved = 0x8003,
+  AssemblyHashAlgorithm_SHA1 = 0x8004,
+} AssemblyHashAlgorithm;
+
+typedef enum {
+  AssemblyFlags_PublicKey = 0x0001,
+  AssemblyFlags_Retargetable = 0x0100,
+  AssemblyFlags_DisableJITcompileOptimizer = 0x4000,
+  AssemblyFlags_EnableJITcompileTracking = 0x8000
 } AssemblyFlags;
 
 typedef enum {
-  TypeAttributes_None = 0,
+  TypeAttributes_NotPublic = 0x0000,
+  TypeAttributes_Public = 0x0001,
+  TypeAttributes_NestedPublic = 0x0002,
+  TypeAttributes_NestedPrivate = 0x0003,
+  TypeAttributes_NestedFamily = 0x0004,
+  TypeAttributes_NestedAssembly = 0x0005,
+  TypeAttributes_NestedFamANDAssem = 0x0006,
+  TypeAttributes_NestedFamORAssem = 0x0007,
+  TypeAttributes_AutoLayout = 0x0000,
+  TypeAttributes_SequentialLayout = 0x0008,
+  TypeAttributes_ExplicitLayout = 0x0010,
+  TypeAttributes_Class = 0x0000,
+  TypeAttributes_Interface = 0x0020,
+  TypeAttributes_Abstract = 0x0080,
+  TypeAttributes_Sealed = 0x0100,
+  TypeAttributes_SpecialName = 0x0400,
+  TypeAttributes_Import = 0x1000,
+  TypeAttributes_Serializable = 0x2000,
+  TypeAttributes_AnsiClass = 0x0000,
+  TypeAttributes_UnicodeClass = 0x10000,
+  TypeAttributes_AutoClass = 0x20000,
+  TypeAttributes_CustomFormatClass = 0x30000,
+  TypeAttributes_BeforeFieldInit = 0x100000,
+  TypeAttributes_RTSpecialName = 0x0800,
+  TypeAttributes_HasSecurity = 0x40000,
+  TypeAttributes_IsTypeForwarder = 0x200000,
 } TypeAttributes;
 
 typedef enum {
-  FieldAttributes_None = 0,
+  FieldAttributes_CompilerControlled = 0x0000,
+  FieldAttributes_Private = 0x0001,
+  FieldAttributes_FamANDAssem = 0x0002,
+  FieldAttributes_Assembly = 0x0003,
+  FieldAttributes_Family = 0x0004,
+  FieldAttributes_FamORAssem = 0x0005,
+  FieldAttributes_Public = 0x0006,
+  FieldAttributes_Static = 0x0010,
+  FieldAttributes_InitOnly = 0x0020,
+  FieldAttributes_Literal = 0x0040,
+  FieldAttributes_NotSerialized = 0x0080,
+  FieldAttributes_SpecialName = 0x0200,
+  FieldAttributes_PInvokeImpl = 0x2000,
+  FieldAttributes_RTSpecialName = 0x0400,
+  FieldAttributes_HasFieldMarshal = 0x1000,
+  FieldAttributes_HasDefault = 0x8000,
+  FieldAttributes_HasFieldRVA = 0x0100,
 } FieldAttributes;
 
 typedef enum {
-  ManifestResourceAttributes_None = 0,
+  ManifestResourceAttributes_Public = 0x0001,
+  ManifestResourceAttributes_Private = 0x0002,
 } ManifestResourceAttributes;
 
 typedef enum {
-  FileAttributes_None = 0,
+  FileAttributes_ContainsMetaData = 0,
+  FieldAttributes_ContainsNoMetaData = 1,
 } FileAttributes;
-git @github.com : himanshugoel2797 / miniclr.git typedef struct {
+
+typedef struct {
   uint16_t generation;
   String_t name;
   Guid_t mvId;
@@ -205,7 +259,7 @@ typedef struct {
 } MD_FieldRVA;
 
 typedef struct {
-  AssemblyHashAlg_t hashAlgId;
+  AssemblyHashAlgorithm hashAlgId;
   uint16_t majorVer;
   uint16_t minorVer;
   uint16_t buildNumber;
@@ -262,13 +316,60 @@ typedef struct {
 } MD_GenericParam;
 
 typedef struct {
+  MethodDefOrRef_t method;
+  Blob_t instantiation;
+} MD_MethodSpec;
+
+typedef struct {
   GenericParam_t owner;
   TypeDefOrRef_t constraint;
 } MD_GenericParamConstraint;
 
-typedef struct {
-  MethodDefOrRef_t method;
-  Blob_t instantiation;
-} MD_MethodSpec;
+// Management of above definitions
+static size_t typeSizeMap[] = {sizeof(MD_Module),
+                               sizeof(MD_TypeRef),
+                               sizeof(MD_TypeDef),
+                               0,
+                               sizeof(MD_Field),
+                               0,
+                               sizeof(MD_MethodDef),
+                               0,
+                               sizeof(MD_Param),
+                               sizeof(MD_InterfaceImpl),
+                               sizeof(MD_MemberRef),
+                               sizeof(MD_Constant),
+                               sizeof(MD_CustomAttribute),
+                               sizeof(MD_FieldMarshal),
+                               sizeof(MD_DeclSecurity),
+                               sizeof(MD_ClassLayout),
+                               sizeof(MD_FieldLayout),
+                               sizeof(MD_StandAloneSig),
+                               sizeof(MD_EventMap),
+                               0,
+                               sizeof(MD_Event),
+                               sizeof(MD_PropertyMap),
+                               0,
+                               sizeof(MD_Property),
+                               sizeof(MD_MethodSemantics),
+                               sizeof(MD_MethodImpl),
+                               sizeof(MD_ModuleRef),
+                               sizeof(MD_TypeSpec),
+                               sizeof(MD_ImplMap),
+                               sizeof(MD_FieldRVA),
+                               0,
+                               0,
+                               sizeof(MD_Assembly),
+                               0,
+                               0,
+                               sizeof(MD_AssemblyRef),
+                               0,
+                               0,
+                               sizeof(MD_File),
+                               sizeof(MD_ExportedType),
+                               sizeof(MD_ManifestResource),
+                               sizeof(MD_NestedClass),
+                               sizeof(MD_GenericParam),
+                               sizeof(MD_MethodSpec),
+                               sizeof(MD_GenericParamConstraint)};
 
 #endif
