@@ -56,9 +56,14 @@ typedef struct {
   uint32_t blob_heap_off;
   uint32_t guid_heap_off;
   uint32_t metadata_stream_off;
+  uint8_t *metadata_stream_data;
   uint32_t metadata_streams[METADATA_STREAM_COUNT];
 } Metadata;
 
 int Metadata_Load(PEInfo *info);
+
+MetadataType Metadata_GetType(uint32_t id);
+
+void *Metadata_GetObject(PEInfo *info, uint32_t id);
 
 #endif

@@ -71,7 +71,9 @@ int Metadata_Load(PEInfo *info) {
   mdata_strm_hdr =
       (MetadataStreamHeader *)&metadata_table[info->mdata.metadata_stream_off];
 
-  uint32_t cur_off = 0;
+  info->mdata.metadata_stream_data = mdata_strm_hdr->data;
+
+  uint32_t cur_off = sizeof(uint32_t) * bitcntll(mdata_strm_hdr->valid);
   uint32_t row_idx = 0;
 
   for (int i = 0;
@@ -88,4 +90,13 @@ int Metadata_Load(PEInfo *info) {
   return 0;
 }
 
-int Metadata_GetObject(uint32_t id, void *obj) { return 0; }
+MetadataType Metadata_GetType(uint32_t id) { return id >> 24; }
+
+void *Metadata_GetObject(PEInfo *info, uint32_t id) {
+
+  MetadataType t = Metadata_GetType(id);
+  uint32_t idx = id & 0xFFFFFF;
+
+  return &info->mdata.metadata_stream_data[info->mdata.metadata_streams[t] +
+                                           typeSizeMap[t] * idx];
+}

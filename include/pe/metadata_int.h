@@ -44,6 +44,7 @@ typedef struct {
   uint64_t valid;
   uint64_t sorted;
   uint32_t rows[0];
+  uint8_t data[0];
 } MetadataStreamHeader;
 
 typedef enum {
