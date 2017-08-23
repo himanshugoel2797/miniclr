@@ -14,6 +14,8 @@
 #include "pe/pe_int.h"
 #include "platform.h"
 
+static int specialCodingSize[SPECIAL_CODING_COUNT];
+
 int Metadata_Load(PEInfo *info) {
   uint32_t metadata_root_off = 0, metadata_str_name_len = 0;
   uint8_t *metadata_table = NULL;
@@ -54,14 +56,19 @@ int Metadata_Load(PEInfo *info) {
 
     if (strcmp(strm_hdr->stream_str, "#~") == 0) {
       info->mdata.metadata_stream_off = strm_hdr->offset;
+      info->mdata.metadata_stream_sz = strm_hdr->size;
     } else if (strcmp(strm_hdr->stream_str, "#Strings") == 0) {
       info->mdata.string_heap_off = strm_hdr->offset;
+      info->mdata.string_heap_size = strm_hdr->size;
     } else if (strcmp(strm_hdr->stream_str, "#US") == 0) {
       info->mdata.us_heap_off = strm_hdr->offset;
+      info->mdata.us_heap_size = strm_hdr->size;
     } else if (strcmp(strm_hdr->stream_str, "#GUID") == 0) {
       info->mdata.guid_heap_off = strm_hdr->offset;
+      info->mdata.guid_heap_size = strm_hdr->size;
     } else if (strcmp(strm_hdr->stream_str, "#Blob") == 0) {
       info->mdata.blob_heap_off = strm_hdr->offset;
+      info->mdata.blob_heap_size = strm_hdr->size;
     }
 
     strm_hdr = (StreamHeader *)((uint8_t *)strm_hdr + next_hdr);
@@ -82,7 +89,7 @@ int Metadata_Load(PEInfo *info) {
 
     if ((1ull << i) & mdata_strm_hdr->valid) {
       info->mdata.metadata_streams[i] = cur_off;
-      cur_off += typeSizeMap[i] * mdata_strm_hdr->rows[row_idx];
+      cur_off += Metadata_GetItemSize(info, i) * mdata_strm_hdr->rows[row_idx];
       row_idx++;
     }
   }
@@ -92,11 +99,285 @@ int Metadata_Load(PEInfo *info) {
 
 MetadataType Metadata_GetType(uint32_t id) { return id >> 24; }
 
-void *Metadata_GetObject(PEInfo *info, uint32_t id) {
+static inline void append_uint8(uint8_t *src, uint8_t *dst) {
+  uint32_t *s = (uint32_t *)src;
+  s[0] = *(uint8_t *)dst;
+}
+
+static inline void append_uint16(uint8_t *src, uint8_t *dst) {
+  uint32_t *s = (uint32_t *)src;
+  s[0] = *(uint16_t *)dst;
+}
+
+static inline void append_uint32(uint8_t *src, uint8_t *dst) {
+  uint32_t *s = (uint32_t *)src;
+  s[0] = *(uint32_t *)dst;
+}
+
+int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
 
   MetadataType t = Metadata_GetType(id);
-  uint32_t idx = id & 0xFFFFFF;
+  uint32_t idx = (id & 0xFFFFFF);
 
-  return &info->mdata.metadata_stream_data[info->mdata.metadata_streams[t] +
-                                           typeSizeMap[t] * idx];
+  if (idx == 0)
+    return -1;
+
+  idx--;
+
+  MetadataStreamHeader *mdata_strm_hdr =
+      (MetadataStreamHeader *)&info->data[info->mdata.metadata_root_off +
+                                          info->mdata.metadata_stream_off];
+
+  uint8_t *baseData =
+      &info->mdata.metadata_stream_data[info->mdata.metadata_streams[t] +
+                                        Metadata_GetItemSize(info, t) * idx];
+  uint8_t *targetData = obj;
+
+  char *rep = metadataTypeFields[t];
+
+  while (*rep != 0) {
+    switch (*rep) {
+    case 's':
+      append_uint16(targetData, baseData);
+      baseData += sizeof(uint16_t);
+      break;
+    case 'u':
+      append_uint32(targetData, baseData);
+      baseData += sizeof(uint32_t);
+      break;
+    case 'b':
+      append_uint8(targetData, baseData);
+      baseData += sizeof(uint8_t);
+      break;
+    case 'S':
+      if (info->mdata.string_heap_size >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'G':
+      if (info->mdata.guid_heap_size >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'F':
+      if (mdata_strm_hdr->rows[MetadataType_Field] >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'M':
+      if (mdata_strm_hdr->rows[MetadataType_MethodDef] >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'P':
+      if (mdata_strm_hdr->rows[MetadataType_Param] >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'T':
+      if (mdata_strm_hdr->rows[MetadataType_TypeDef] >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'E':
+      if (mdata_strm_hdr->rows[MetadataType_Event] >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'R':
+      if (mdata_strm_hdr->rows[MetadataType_Property] >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'm':
+      if (mdata_strm_hdr->rows[MetadataType_MethodDef] >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'g':
+      if (mdata_strm_hdr->rows[MetadataType_GenericParam] >= (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    }
+
+    if (*rep >= '0' && *rep <= '>') {
+      int bitCnt = specialCodingBitCnt[*rep - '0'];
+      char *coding = specialCoding[*rep - '0'];
+
+      uint32_t val = 0;
+      if (specialCodingSize[*rep - '0'] == sizeof(uint16_t)) {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      } else {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      }
+    }
+
+    targetData += sizeof(uint32_t);
+    rep++;
+  }
+
+  return 0;
+}
+
+uint32_t Metadata_BuildToken(MetadataType t, uint32_t idx) {
+  return (t << 24) | (idx & 0xFFFFFF);
+}
+
+const char *Metadata_GetString(PEInfo *info, String_t off) {
+
+  return &info->data[info->mdata.metadata_root_off +
+                     info->mdata.string_heap_off + off];
+}
+
+size_t Metadata_GetItemSize(PEInfo *info, MetadataType t) {
+
+  char *rep = metadataTypeFields[t];
+  if (rep == NULL)
+    return 0;
+
+  size_t sz = 0;
+
+  MetadataStreamHeader *mdata_strm_hdr =
+      (MetadataStreamHeader *)&info->data[info->mdata.metadata_root_off +
+                                          info->mdata.metadata_stream_off];
+
+  while (*rep != 0) {
+    switch (*rep) {
+    case 's':
+      sz += sizeof(uint16_t);
+      break;
+    case 'u':
+      sz += sizeof(uint32_t);
+      break;
+    case 'b':
+      sz += sizeof(uint8_t);
+      break;
+    case 'S':
+      if (info->mdata.string_heap_size >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'G':
+      if (info->mdata.guid_heap_size >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'F':
+      if (mdata_strm_hdr->rows[MetadataType_Field] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'M':
+      if (mdata_strm_hdr->rows[MetadataType_MethodDef] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'P':
+      if (mdata_strm_hdr->rows[MetadataType_Param] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'T':
+      if (mdata_strm_hdr->rows[MetadataType_TypeDef] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'E':
+      if (mdata_strm_hdr->rows[MetadataType_Event] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'R':
+      if (mdata_strm_hdr->rows[MetadataType_Property] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'm':
+      if (mdata_strm_hdr->rows[MetadataType_MethodDef] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'g':
+      if (mdata_strm_hdr->rows[MetadataType_GenericParam] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    }
+
+    if (*rep >= '0' && *rep <= '>') {
+      int bitCnt = specialCodingBitCnt[*rep - '0'];
+      char *coding = specialCoding[*rep - '0'];
+
+      int netSize = sizeof(uint16_t);
+
+      while (*coding != 0) {
+        if (*coding != 'q') {
+          if (mdata_strm_hdr->rows[*coding] >= (1 << (16 - bitCnt))) {
+            netSize = sizeof(uint32_t);
+          }
+        }
+        coding++;
+      }
+
+      specialCodingSize[*rep - '0'] = netSize;
+      sz += netSize;
+    }
+
+    rep++;
+  }
+
+  return sz;
 }

@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "pe.h"
+#include "types.h"
 
 #define METADATA_STREAM_COUNT 48
 
@@ -51,10 +52,21 @@ typedef enum {
 
 typedef struct {
   uint32_t metadata_root_off;
+
   uint32_t string_heap_off;
+  uint32_t string_heap_size;
+
   uint32_t us_heap_off;
+  uint32_t us_heap_size;
+
   uint32_t blob_heap_off;
+  uint32_t blob_heap_size;
+
   uint32_t guid_heap_off;
+  uint32_t guid_heap_size;
+
+  uint32_t metadata_stream_sz;
+
   uint32_t metadata_stream_off;
   uint8_t *metadata_stream_data;
   uint32_t metadata_streams[METADATA_STREAM_COUNT];
@@ -64,6 +76,12 @@ int Metadata_Load(PEInfo *info);
 
 MetadataType Metadata_GetType(uint32_t id);
 
-void *Metadata_GetObject(PEInfo *info, uint32_t id);
+uint32_t Metadata_BuildToken(MetadataType t, uint32_t idx);
+
+int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj);
+
+const char *Metadata_GetString(PEInfo *info, String_t off);
+
+size_t Metadata_GetItemSize(PEInfo *info, MetadataType t);
 
 #endif

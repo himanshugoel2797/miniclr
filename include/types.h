@@ -31,5 +31,7 @@ typedef uint32_t Implementation_t;
 typedef uint32_t TypeOrMethodDef_t;
 typedef uint32_t GenericParam_t;
 typedef uint32_t MemberRefParent_t;
+typedef uint32_t HasCustomAttribute_t;
+typedef uint32_t HasConstant_t;
 
 #endif

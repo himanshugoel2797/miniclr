@@ -2,7 +2,7 @@ TARGET=miniclr
 
 OBJS=src/main.o src/pe/pe.o src/pe/metadata.o
 
-CFLAGS= -std=c11 -Iinclude
+CFLAGS= -g -std=c11 -Iinclude
 
 LDFLAGS=
 LIBS=

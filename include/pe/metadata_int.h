@@ -120,7 +120,7 @@ typedef enum {
 } FileAttributes;
 
 typedef struct {
-  uint16_t generation;
+  uint32_t generation;
   String_t name;
   Guid_t mvId;
   Guid_t encId;
@@ -150,15 +150,15 @@ typedef struct {
 
 typedef struct {
   uint32_t rva;
-  uint16_t implFlags;
-  uint16_t flags;
+  uint32_t implFlags;
+  uint32_t flags;
   String_t name;
   Param_t paramList;
 } MD_MethodDef;
 
 typedef struct {
-  uint16_t flags;
-  uint16_t sequence;
+  uint32_t flags;
+  uint32_t sequence;
   String_t name;
 } MD_Param;
 
@@ -174,13 +174,13 @@ typedef struct {
 } MD_MemberRef;
 
 typedef struct {
-  uint8_t type;
-  Parent_t parent;
+  uint32_t type;
+  HasConstant_t parent;
   Blob_t value;
 } MD_Constant;
 
 typedef struct {
-  Parent_t parent;
+  HasCustomAttribute_t parent;
   CustomAttribute_t type;
   Blob_t value;
 } MD_CustomAttribute;
@@ -191,13 +191,13 @@ typedef struct {
 } MD_FieldMarshal;
 
 typedef struct {
-  uint16_t action;
+  uint32_t action;
   Parent_t parent;
   Blob_t permissionSet;
 } MD_DeclSecurity;
 
 typedef struct {
-  uint16_t packingSize;
+  uint32_t packingSize;
   uint32_t classSize;
   Parent_t parent;
 } MD_ClassLayout;
@@ -215,7 +215,7 @@ typedef struct {
 } MD_EventMap;
 
 typedef struct {
-  uint16_t eventFlags;
+  uint32_t eventFlags;
   String_t name;
   TypeDefOrRef_t eventType;
 } MD_Event;
@@ -226,13 +226,13 @@ typedef struct {
 } MD_PropertyMap;
 
 typedef struct {
-  uint16_t flags;
+  uint32_t flags;
   String_t name;
   Blob_t type;
 } MD_Property;
 
 typedef struct {
-  uint16_t semantics;
+  uint32_t semantics;
   MethodDef_t method;
   HasSemantics_t association;
 } MD_MethodSemantics;
@@ -248,7 +248,7 @@ typedef struct { String_t name; } MD_ModuleRef;
 typedef struct { Blob_t signature; } MD_TypeSpec;
 
 typedef struct {
-  uint16_t mappingFlags;
+  uint32_t mappingFlags;
   MemberForwarded_t forwarded;
   String_t importName;
   ModuleRef_t importScope;
@@ -261,10 +261,10 @@ typedef struct {
 
 typedef struct {
   AssemblyHashAlgorithm hashAlgId;
-  uint16_t majorVer;
-  uint16_t minorVer;
-  uint16_t buildNumber;
-  uint16_t revisionNumber;
+  uint32_t majorVer;
+  uint32_t minorVer;
+  uint32_t buildNumber;
+  uint32_t revisionNumber;
   AssemblyFlags flags;
   Blob_t publicKey;
   String_t name;
@@ -272,10 +272,10 @@ typedef struct {
 } MD_Assembly;
 
 typedef struct {
-  uint16_t majorVer;
-  uint16_t minorVer;
-  uint16_t buildNumber;
-  uint16_t revisionNumber;
+  uint32_t majorVer;
+  uint32_t minorVer;
+  uint32_t buildNumber;
+  uint32_t revisionNumber;
   AssemblyFlags flags;
   Blob_t publicKeyOrToken;
   String_t name;
@@ -310,8 +310,8 @@ typedef struct {
 } MD_NestedClass;
 
 typedef struct {
-  uint16_t idx;
-  uint16_t flags;
+  uint32_t idx;
+  uint32_t flags;
   TypeOrMethodDef_t owner;
   String_t name;
 } MD_GenericParam;
@@ -372,5 +372,68 @@ static size_t typeSizeMap[] = {sizeof(MD_Module),
                                sizeof(MD_GenericParam),
                                sizeof(MD_MethodSpec),
                                sizeof(MD_GenericParamConstraint)};
+
+// s - short
+// S - String
+// G - Guid
+// u - uint
+// F - Field
+// M - Method
+// B - Blob
+// P - Param
+// T - TypeDef
+// b - byte
+// E - EventList
+// R - Property
+// m - MethodDef
+// g - GenericParam
+
+// 0 - TypeDefOrRef
+// 1 - HasConstant
+// 2 - ModuleRef
+// 3 - HasCustomAttribute
+// 4 - MethodDefOrRef
+// 5 - HasDeclSecurity
+// 6 - HasFieldMarshall
+// 7 - Parent
+// 8 - MemberRefParent
+// 9 - ResolutionScope
+//: - MemberForwarded
+//; - HasSemantics
+//< - CustomAttributeType
+//= - TypeOrMethodDef
+//> - Implementation
+
+static char *metadataTypeFields[] = {
+    "sSGGG",     "9SS", "uSS0FM", NULL,        "uSB",  NULL, "ussSP", NULL,
+    "uuS",       "T0",  "8SB",    "b1B",       "3<B",  "6B", "s5B",   "suT",
+    "uF",        "B",   "TE",     NULL,        "sS0",  "TR", NULL,    "sSB",
+    "sm;",       "T44", "S",      "B",         "s:S2", "uF", NULL,    NULL,
+    "ussssuBSS", NULL,  NULL,     "ssssuBSSB", NULL,   NULL, "uSB",   "uTSS>",
+    "uuS>",      "TT",  "ss=S",   "4B",        "g0"};
+
+#define SPECIAL_CODING_COUNT 14
+
+static int specialCodingBitCnt[] = {2, 2, 0, 5, 1, 2, 1, 0,
+                                    3, 2, 1, 1, 3, 1, 2};
+
+static char *specialCoding[] = {
+    "\x02\x01\x1Bq",
+    "\x04\x08\x17q",
+    NULL,
+    "\x06\x04\x01\x02\x08\x09\x0A\x00\x0E\x17\x14\x11\x1A\x1B\x20\x23\x26\x27"
+    "\x28qqqqqqqqqqq",
+    "\x06\x0Aqqqqqq",
+    "\x02\x06\x20qqqqq",
+    "\x04\x08qqqqqqqq",
+    NULL,
+    "q\x01\x1A\x06\x1Bqqqqq",
+    "\x00\x1A\x23\x01qqqqqqqq",
+    "\x04\x06qqqqqqqq",
+    "\x14\x17qqqqqq",
+    "qq\x06\x0Aqqqqqq",
+    "\x02\x06qqqqqqqqq",
+    "\x26\x23\x27qqqqqqqqqq",
+};
 
 #endif
