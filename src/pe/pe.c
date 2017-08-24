@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2017 Himanshu Goel
- * 
+ *
  * This software is released under the MIT License.
  * https://opensource.org/licenses/MIT
  */
@@ -14,14 +14,14 @@
 #include "platform.h"
 
 int
-PE_RVAToOffset(const PEInfo *info, uint32_t rva, uint32_t *offset){
+PE_RVAToOffset(const PEInfo *info, uint32_t rva, uint32_t *offset) {
 
     //Loop through the section tables to figure out the offset
     for(int i = 0; i < info->section_hdr_cnt; i++) {
 
-        if(info->section_table[i].virtualAddress <= rva && info->section_table[i].virtualAddress + info->section_table[i].virtualSize > rva){
+        if(info->section_table[i].virtualAddress <= rva && info->section_table[i].virtualAddress + info->section_table[i].virtualSize > rva) {
             //Save the text section
-            if(info->section_table[i].sizeOfRawData < (rva - info->section_table[i].virtualAddress)){
+            if(info->section_table[i].sizeOfRawData < (rva - info->section_table[i].virtualAddress)) {
                 *offset = 0;
                 return 0;
             }
@@ -35,7 +35,7 @@ PE_RVAToOffset(const PEInfo *info, uint32_t rva, uint32_t *offset){
 }
 
 int
-PE_LoadData(uint8_t *data, size_t data_len, char **argv, int argc, PEInfo *info){
+PE_LoadData(uint8_t *data, size_t data_len, char **argv, int argc, PEInfo *info) {
 
     uint32_t pe_sig_off = 0, pe_text_off = 0, import_table_off = 0, import_addr_table_off = 0, cli_hdr_off = 0;
     bool supported_arch = false;
@@ -50,7 +50,7 @@ PE_LoadData(uint8_t *data, size_t data_len, char **argv, int argc, PEInfo *info)
     }
 
     pe_sig_off = p_memtole32(&data[PE_SIG_OFF_LOC]);
-    
+
     if(pe_sig_off >= data_len)
         return -1;  //Not a valid PE file
 
@@ -87,7 +87,7 @@ PE_LoadData(uint8_t *data, size_t data_len, char **argv, int argc, PEInfo *info)
 
     //Iterate over the section headers, looking for desired sections
     for(int i = 0; i < pe_hdr->numberOfSections; i++) {
-        if(strcmp(section_hdr[i].name, ".text") == 0){
+        if(strcmp(section_hdr[i].name, ".text") == 0) {
             //Save the text section
             pe_text_off = section_hdr[i].pointerToRawData;
         }
