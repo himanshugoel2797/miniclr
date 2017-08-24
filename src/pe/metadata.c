@@ -83,12 +83,27 @@ int Metadata_Load(PEInfo *info) {
   uint32_t cur_off = sizeof(uint32_t) * bitcntll(mdata_strm_hdr->valid);
   uint32_t row_idx = 0;
 
+  for (int i = 0; i < METADATA_STREAM_COUNT; i++) {
+
+    info->mdata.metadata_stream_rows[i] = 0;
+
+    if ((1ull << i) & mdata_strm_hdr->valid) {
+      info->mdata.metadata_stream_rows[i] = mdata_strm_hdr->rows[row_idx];
+      row_idx++;
+    }
+  }
+
+  row_idx = 0;
+
   for (int i = 0;
        i < METADATA_STREAM_COUNT && row_idx < bitcntll(mdata_strm_hdr->valid);
        i++) {
 
+    info->mdata.metadata_stream_rows[i] = 0;
+
     if ((1ull << i) & mdata_strm_hdr->valid) {
       info->mdata.metadata_streams[i] = cur_off;
+      info->mdata.metadata_stream_rows[i] = mdata_strm_hdr->rows[row_idx];
       cur_off += Metadata_GetItemSize(info, i) * mdata_strm_hdr->rows[row_idx];
       row_idx++;
     }
@@ -131,6 +146,7 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
   uint8_t *baseData =
       &info->mdata.metadata_stream_data[info->mdata.metadata_streams[t] +
                                         Metadata_GetItemSize(info, t) * idx];
+
   uint8_t *targetData = obj;
 
   char *rep = metadataTypeFields[t];
@@ -150,7 +166,7 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       baseData += sizeof(uint8_t);
       break;
     case 'S':
-      if (info->mdata.string_heap_size >= (1 << 16)) {
+      if (mdata_strm_hdr->heapSizes & 0x1) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -159,7 +175,7 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'G':
-      if (info->mdata.guid_heap_size >= (1 << 16)) {
+      if (mdata_strm_hdr->heapSizes & 0x2) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -168,7 +184,7 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'F':
-      if (mdata_strm_hdr->rows[MetadataType_Field] >= (1 << 16)) {
+      if (info->mdata.metadata_stream_rows[MetadataType_Field] >= (1 << 16)) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -177,7 +193,17 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'M':
-      if (mdata_strm_hdr->rows[MetadataType_MethodDef] >= (1 << 16)) {
+      if (info->mdata.metadata_stream_rows[MetadataType_MethodDef] >=
+          (1 << 16)) {
+        append_uint32(targetData, baseData);
+        baseData += sizeof(uint32_t);
+      } else {
+        append_uint16(targetData, baseData);
+        baseData += sizeof(uint16_t);
+      }
+      break;
+    case 'B':
+      if (mdata_strm_hdr->heapSizes & 0x4) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -186,7 +212,7 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'P':
-      if (mdata_strm_hdr->rows[MetadataType_Param] >= (1 << 16)) {
+      if (info->mdata.metadata_stream_rows[MetadataType_Param] >= (1 << 16)) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -195,7 +221,7 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'T':
-      if (mdata_strm_hdr->rows[MetadataType_TypeDef] >= (1 << 16)) {
+      if (info->mdata.metadata_stream_rows[MetadataType_TypeDef] >= (1 << 16)) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -204,7 +230,7 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'E':
-      if (mdata_strm_hdr->rows[MetadataType_Event] >= (1 << 16)) {
+      if (info->mdata.metadata_stream_rows[MetadataType_Event] >= (1 << 16)) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -213,7 +239,8 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'R':
-      if (mdata_strm_hdr->rows[MetadataType_Property] >= (1 << 16)) {
+      if (info->mdata.metadata_stream_rows[MetadataType_Property] >=
+          (1 << 16)) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -222,7 +249,8 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'm':
-      if (mdata_strm_hdr->rows[MetadataType_MethodDef] >= (1 << 16)) {
+      if (info->mdata.metadata_stream_rows[MetadataType_MethodDef] >=
+          (1 << 16)) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -231,7 +259,8 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       }
       break;
     case 'g':
-      if (mdata_strm_hdr->rows[MetadataType_GenericParam] >= (1 << 16)) {
+      if (info->mdata.metadata_stream_rows[MetadataType_GenericParam] >=
+          (1 << 16)) {
         append_uint32(targetData, baseData);
         baseData += sizeof(uint32_t);
       } else {
@@ -296,61 +325,68 @@ size_t Metadata_GetItemSize(PEInfo *info, MetadataType t) {
       sz += sizeof(uint8_t);
       break;
     case 'S':
-      if (info->mdata.string_heap_size >= (1 << 16))
+      if (mdata_strm_hdr->heapSizes & 0x1)
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'G':
-      if (info->mdata.guid_heap_size >= (1 << 16))
+      if (mdata_strm_hdr->heapSizes & 0x2)
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'F':
-      if (mdata_strm_hdr->rows[MetadataType_Field] >= (1 << 16))
+      if (info->mdata.metadata_stream_rows[MetadataType_Field] >= (1 << 16))
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'M':
-      if (mdata_strm_hdr->rows[MetadataType_MethodDef] >= (1 << 16))
+      if (info->mdata.metadata_stream_rows[MetadataType_MethodDef] >= (1 << 16))
+        sz += sizeof(uint32_t);
+      else
+        sz += sizeof(uint16_t);
+      break;
+    case 'B':
+      if (mdata_strm_hdr->heapSizes & 0x4)
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'P':
-      if (mdata_strm_hdr->rows[MetadataType_Param] >= (1 << 16))
+      if (info->mdata.metadata_stream_rows[MetadataType_Param] >= (1 << 16))
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'T':
-      if (mdata_strm_hdr->rows[MetadataType_TypeDef] >= (1 << 16))
+      if (info->mdata.metadata_stream_rows[MetadataType_TypeDef] >= (1 << 16))
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'E':
-      if (mdata_strm_hdr->rows[MetadataType_Event] >= (1 << 16))
+      if (info->mdata.metadata_stream_rows[MetadataType_Event] >= (1 << 16))
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'R':
-      if (mdata_strm_hdr->rows[MetadataType_Property] >= (1 << 16))
+      if (info->mdata.metadata_stream_rows[MetadataType_Property] >= (1 << 16))
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'm':
-      if (mdata_strm_hdr->rows[MetadataType_MethodDef] >= (1 << 16))
+      if (info->mdata.metadata_stream_rows[MetadataType_MethodDef] >= (1 << 16))
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
       break;
     case 'g':
-      if (mdata_strm_hdr->rows[MetadataType_GenericParam] >= (1 << 16))
+      if (info->mdata.metadata_stream_rows[MetadataType_GenericParam] >=
+          (1 << 16))
         sz += sizeof(uint32_t);
       else
         sz += sizeof(uint16_t);
@@ -363,9 +399,10 @@ size_t Metadata_GetItemSize(PEInfo *info, MetadataType t) {
 
       int netSize = sizeof(uint16_t);
 
-      while (*coding != 0) {
+      while (coding != NULL && *coding != 'z') {
         if (*coding != 'q') {
-          if (mdata_strm_hdr->rows[*coding] >= (1 << (16 - bitCnt))) {
+          if (info->mdata.metadata_stream_rows[*coding] >=
+              (1 << (16 - bitCnt))) {
             netSize = sizeof(uint32_t);
           }
         }

@@ -153,6 +153,7 @@ typedef struct {
   uint32_t implFlags;
   uint32_t flags;
   String_t name;
+  Blob_t signature;
   Param_t paramList;
 } MD_MethodDef;
 
@@ -404,36 +405,71 @@ static size_t typeSizeMap[] = {sizeof(MD_Module),
 //= - TypeOrMethodDef
 //> - Implementation
 
-static char *metadataTypeFields[] = {
-    "sSGGG",     "9SS", "uSS0FM", NULL,        "uSB",  NULL, "ussSP", NULL,
-    "uuS",       "T0",  "8SB",    "b1B",       "3<B",  "6B", "s5B",   "suT",
-    "uF",        "B",   "TE",     NULL,        "sS0",  "TR", NULL,    "sSB",
-    "sm;",       "T44", "S",      "B",         "s:S2", "uF", NULL,    NULL,
-    "ussssuBSS", NULL,  NULL,     "ssssuBSSB", NULL,   NULL, "uSB",   "uTSS>",
-    "uuS>",      "TT",  "ss=S",   "4B",        "g0"};
+static char *metadataTypeFields[] = {"sSGGG",  // Module
+                                     "9SS",    // TypeRef
+                                     "uSS0FM", // TypeDef
+                                     NULL,
+                                     "sSB", // Field
+                                     NULL,
+                                     "ussSBP", // MethodDef
+                                     NULL,
+                                     "ssS", // Param
+                                     "T0",  // InterfaceImpl
+                                     "8SB", // MemberRef
+                                     "u1B", // Constant
+                                     "3<B", // CustomAttribute
+                                     "6B",  // FieldMarshal
+                                     "s5B", // DeclSecurity
+                                     "suT", // ClassLayout
+                                     "uF",  // FieldLayout
+                                     "B",   // StandAloneSig
+                                     "TE",  // EventMap
+                                     NULL,
+                                     "sS0", // Event
+                                     "TR",  // PropertyMap
+                                     NULL,
+                                     "sSB",  // Property
+                                     "sm;",  // MethodSemantics
+                                     "T44",  // MethodImpl
+                                     "S",    // ModuleRef
+                                     "B",    // TypeSpec
+                                     "s:S2", // ImplMap
+                                     "uF",   // FieldRVA
+                                     NULL,        NULL,
+                                     "ussssuBSS", // Assembly
+                                     NULL,        NULL,
+                                     "ssssuBSSB", // AssemblyRef
+                                     NULL,        NULL,
+                                     "uSB",   // File
+                                     "uTSS>", // ExportedType
+                                     "uuS>",  // ManifestResource
+                                     "TT",    // NestedClass
+                                     "ss=S",  // GenericParam
+                                     "4B",    // MethodSpec
+                                     "g0"};   // GenericParamConstraint
 
-#define SPECIAL_CODING_COUNT 14
+#define SPECIAL_CODING_COUNT 15
 
 static int specialCodingBitCnt[] = {2, 2, 0, 5, 1, 2, 1, 0,
                                     3, 2, 1, 1, 3, 1, 2};
 
 static char *specialCoding[] = {
-    "\x02\x01\x1Bq",
-    "\x04\x08\x17q",
+    "\x02\x01\x1Bqz",
+    "\x04\x08\x17qz",
     NULL,
     "\x06\x04\x01\x02\x08\x09\x0A\x00\x0E\x17\x14\x11\x1A\x1B\x20\x23\x26\x27"
-    "\x28qqqqqqqqqqq",
-    "\x06\x0Aqqqqqq",
-    "\x02\x06\x20qqqqq",
-    "\x04\x08qqqqqqqq",
+    "\x28qqqqqqqqqqqz",
+    "\x06\x0Aqqqqqqz",
+    "\x02\x06\x20qqqqqz",
+    "\x04\x08qqqqqqqqz",
     NULL,
-    "q\x01\x1A\x06\x1Bqqqqq",
-    "\x00\x1A\x23\x01qqqqqqqq",
-    "\x04\x06qqqqqqqq",
-    "\x14\x17qqqqqq",
-    "qq\x06\x0Aqqqqqq",
-    "\x02\x06qqqqqqqqq",
-    "\x26\x23\x27qqqqqqqqqq",
+    "\x02\x01\x1A\x06\x1Bqqqqqz",
+    "\x00\x1A\x23\x01qqqqqqqqz",
+    "\x04\x06qqqqqqqqz",
+    "\x14\x17qqqqqqz",
+    "qq\x06\x0Aqqqqqqz",
+    "\x02\x06qqqqqqqqqz",
+    "\x26\x23\x27qqqqqqqqqqz",
 };
 
 #endif

@@ -52,11 +52,14 @@ int main(int argc, char *argv[]) {
     printf("RetVal: %d\n", PE_LoadData(data, pos, argv, argc, &info));
 
     // Parse Assembly metadata if present
-    MD_TypeRef assem;
-    Metadata_GetObject(&info, Metadata_BuildToken(MetadataType_TypeRef, 1),
-                       &assem);
 
-    printf("%s", Metadata_GetString(&info, assem.name));
+    for (int i = 1; i <= 2; i++) {
+      MD_AssemblyRef assem;
+      Metadata_GetObject(
+          &info, Metadata_BuildToken(MetadataType_AssemblyRef, i), &assem);
+
+      printf("%s\r\n", Metadata_GetString(&info, assem.name));
+    }
 
     // Parse and load AssemblyRef metadata
 

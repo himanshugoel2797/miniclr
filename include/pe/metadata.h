@@ -70,6 +70,7 @@ typedef struct {
   uint32_t metadata_stream_off;
   uint8_t *metadata_stream_data;
   uint32_t metadata_streams[METADATA_STREAM_COUNT];
+  uint32_t metadata_stream_rows[METADATA_STREAM_COUNT];
 } Metadata;
 
 int Metadata_Load(PEInfo *info);
