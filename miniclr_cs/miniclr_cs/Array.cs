@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 
 namespace System
 {
-	public class Array
+	[Serializable]
+	public class Array : ICloneable, IList, ICollection, IEnumerable, IStructuralComparable, IStructuralEquatable
 	{
 		public Array ()
 		{

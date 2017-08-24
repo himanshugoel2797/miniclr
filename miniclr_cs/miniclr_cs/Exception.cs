@@ -4,9 +4,9 @@ namespace System
 {
 	public class Exception
 	{
-		public virtual String Message { get; private set; }
-		public virtual String StackTrace { get; private set;}
-		public Exception InnerException {get; private set;}
+		public virtual String Message { get; }
+		public virtual String StackTrace { get;}
+		public Exception InnerException {get;}
 
 		public Exception () : this(null)
 		{

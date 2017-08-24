@@ -2,6 +2,7 @@
 
 namespace System
 {
+	[Serializable]
 	public abstract class Type : System.Reflection.MemberInfo
 	{
 		protected Type ()
@@ -13,6 +14,8 @@ namespace System
 		public static readonly char Delimiter = '.';
 		public static readonly Type[] EmptyTypes;
 		public static readonly object Missing;
+
+		public readonly string FullName;
 
 		public virtual int GetArrayRank() {
 			if (!ArrayRank == 0)

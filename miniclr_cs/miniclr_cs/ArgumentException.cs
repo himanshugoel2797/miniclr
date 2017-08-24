@@ -2,10 +2,12 @@
 
 namespace System
 {
-	public class ArgumentException : Exception
+	[Serializable]
+	[CLSCompliant(true)]
+	public class ArgumentException : SystemException
 	{
-		public override string Message { get; private set;}
-		public virtual string ParamName {get;private set;}
+		public override string Message { get; }
+		public virtual string ParamName {get; }
 
 		public ArgumentException () : this(CardinalStringManager.GetString(CardinalStringNames.ArgumentExceptionDefaultMessage)){
 			

@@ -70,6 +70,18 @@
     <Compile Include="Reflection\MemberInfo.cs" />
     <Compile Include="ArgumentException.cs" />
     <Compile Include="CardinalStringManager.cs" />
+    <Compile Include="IComparable.cs" />
+    <Compile Include="IFormattable.cs" />
+    <Compile Include="IFormatProvider.cs" />
+    <Compile Include="IEquatable.cs" />
+    <Compile Include="NotImplementedException.cs" />
+    <Compile Include="Globalization\NumberStyles.cs" />
+    <Compile Include="FlagsAttribute.cs" />
+    <Compile Include="ICloneable.cs" />
+    <Compile Include="CLSCompliantAttribute.cs" />
+    <Compile Include="AttributeUsageAttribute.cs" />
+    <Compile Include="AttributeTargets.cs" />
+    <Compile Include="SystemException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -77,5 +89,6 @@
     <Folder Include="Reflection\" />
     <Folder Include="Runtime\" />
     <Folder Include="Runtime\InteropServices\" />
+    <Folder Include="Globalization\" />
   </ItemGroup>
 </Project>
