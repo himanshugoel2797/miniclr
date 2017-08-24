@@ -393,7 +393,6 @@ size_t Metadata_GetItemSize(PEInfo *info, MetadataType t) {
                 sz += sizeof(uint16_t);
             break;
         default: {
-
             if (*rep >= '0' && *rep <= '>') {
                 int bitCnt = specialCodingBitCnt[*rep - '0'];
                 char *coding = specialCoding[*rep - '0'];

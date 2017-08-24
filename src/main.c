@@ -53,15 +53,15 @@ int main(int argc, char *argv[]) {
 
         // Parse Assembly metadata if present
 
-        for (int i = 1; i <= 2; i++) {
             MD_AssemblyRef assem;
             Metadata_GetObject(
-                &info, Metadata_BuildToken(MetadataType_AssemblyRef, i), &assem);
+                &info, Metadata_BuildToken(MetadataType_AssemblyRef, 1), &assem);
 
             printf("%s\r\n", Metadata_GetString(&info, assem.name));
-        }
-
+        
         // Parse and load AssemblyRef metadata
+
+        // mscorlib is external with builtin functions used as PInvoke calls.
 
         // Iterate over ExportedType metadata, finding the TypeDef and searching the
         // method list for the entry point

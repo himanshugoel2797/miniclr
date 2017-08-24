@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EE032C31-2E23-4083-9FCF-D6751E3A94B3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>System</RootNamespace>
+    <AssemblyName>miniclr_cs</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoStdLib>true</NoStdLib>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoStdLib>true</NoStdLib>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UInt16.cs" />
+    <Compile Include="ValueType.cs" />
+    <Compile Include="UInt32.cs" />
+    <Compile Include="UInt64.cs" />
+    <Compile Include="Object.cs" />
+    <Compile Include="Int16.cs" />
+    <Compile Include="Int32.cs" />
+    <Compile Include="Int64.cs" />
+    <Compile Include="IntPtr.cs" />
+    <Compile Include="UIntPtr.cs" />
+    <Compile Include="Array.cs" />
+    <Compile Include="Type.cs" />
+    <Compile Include="Exception.cs" />
+    <Compile Include="IDisposable.cs" />
+    <Compile Include="RuntimeFieldHandle.cs" />
+    <Compile Include="RuntimeTypeHandle.cs" />
+    <Compile Include="Collections\IEnumerator.cs" />
+    <Compile Include="Collections\IEnumerable.cs" />
+    <Compile Include="Void.cs" />
+    <Compile Include="Double.cs" />
+    <Compile Include="Single.cs" />
+    <Compile Include="Char.cs" />
+    <Compile Include="Decimal.cs" />
+    <Compile Include="Boolean.cs" />
+    <Compile Include="SByte.cs" />
+    <Compile Include="Byte.cs" />
+    <Compile Include="String.cs" />
+    <Compile Include="Attribute.cs" />
+    <Compile Include="Enum.cs" />
+    <Compile Include="Delegate.cs" />
+    <Compile Include="MulticastDelegate.cs" />
+    <Compile Include="ParamArrayAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\OutAttribute.cs" />
+    <Compile Include="SerializableAttribute.cs" />
+    <Compile Include="Reflection\MemberInfo.cs" />
+    <Compile Include="ArgumentException.cs" />
+    <Compile Include="CardinalStringManager.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Collections\" />
+    <Folder Include="Reflection\" />
+    <Folder Include="Runtime\" />
+    <Folder Include="Runtime\InteropServices\" />
+  </ItemGroup>
+</Project>
