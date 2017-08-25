@@ -1,4 +1,6 @@
-﻿namespace System
+﻿using System.Runtime.CompilerServices;
+
+namespace System
 {
 	[SerializableAttribute]
 	public class Object
@@ -23,16 +25,19 @@
 		}
 
 		public virtual string ToString(){
-			return this.GetType ().FullName;
+			return "";
 		}
 
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		extern public virtual bool Equals (Object obj);
 
-		//TODO: MethodImpl
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		extern public virtual int GetHashCode ();
 
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		extern public Type GetType();
 
+		[MethodImpl(MethodImplOptions.InternalCall)]
 		extern protected object MemberwiseClone();
 	}
 }

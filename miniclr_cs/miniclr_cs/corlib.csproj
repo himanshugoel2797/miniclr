@@ -82,6 +82,10 @@
     <Compile Include="AttributeUsageAttribute.cs" />
     <Compile Include="AttributeTargets.cs" />
     <Compile Include="SystemException.cs" />
+    <Compile Include="Collections\ICollection.cs" />
+    <Compile Include="Collections\IList.cs" />
+    <Compile Include="Runtime\CompilerServices\MethodImplAttribute.cs" />
+    <Compile Include="Runtime\CompilerServices\MethodImplOptions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -90,5 +94,7 @@
     <Folder Include="Runtime\" />
     <Folder Include="Runtime\InteropServices\" />
     <Folder Include="Globalization\" />
+    <Folder Include="Collections\Generic\" />
+    <Folder Include="Runtime\CompilerServices\" />
   </ItemGroup>
 </Project>

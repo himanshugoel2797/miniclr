@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace System
 {
@@ -15,10 +16,13 @@ namespace System
 		public static readonly Type[] EmptyTypes;
 		public static readonly object Missing;
 
+		[MethodImpl(MethodImplOptions.InternalCall)]
+		extern public static Type GetTypeFromHandle(RuntimeTypeHandle handle);
+
 		public readonly string FullName;
 
 		public virtual int GetArrayRank() {
-			if (!ArrayRank == 0)
+			if (ArrayRank == 0)
 				throw new ArgumentException ( CardinalStringManager.GetString(CardinalStringNames.TypeNotArrayMessage) );
 			return ArrayRank;
 		}

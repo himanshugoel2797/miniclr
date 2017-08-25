@@ -17,7 +17,7 @@ namespace System
 		};
 
 		public static string GetString(CardinalStringNames name){
-			return us_strs[name];
+			return us_strs[(int)name];
 		}
 	}
 }

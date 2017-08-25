@@ -6,14 +6,14 @@ namespace System
 	[CLSCompliant(true)]
 	public class ArgumentException : SystemException
 	{
-		public override string Message { get; }
+		//public override string Message { get; }
 		public virtual string ParamName {get; }
 
 		public ArgumentException () : this(CardinalStringManager.GetString(CardinalStringNames.ArgumentExceptionDefaultMessage)){
 			
 		}
 
-		public ArgumentException (string message) : this(message, null)
+		public ArgumentException (string message) : this(message, (Exception)null)
 		{
 		}
 
@@ -24,9 +24,8 @@ namespace System
 		{
 		}
 
-		public ArgumentException (string message, string paramName, Exception innerException) : base(message, innerException){
+		public ArgumentException (string message, string paramName, Exception innerException) : base(message + " " + paramName, innerException){
 			ParamName = paramName;
-			Message = message + " " + paramName;
 		}
 	}
 }

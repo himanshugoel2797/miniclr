@@ -9,6 +9,10 @@ namespace System
 		public static String Format(string fmt, params object[] vals){
 			return fmt;
 		}
+
+		public static String Concat(params string[] a){
+			return "";
+		}
 	}
 }
 

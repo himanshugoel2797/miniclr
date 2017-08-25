@@ -4,8 +4,8 @@ namespace System
 {
 	public struct Int16 : IComparable, IFormattable, IComparable<Int16>, IEquatable<Int16>
 	{
-		public const short MaxValue = 0x7fff;
-		public const short MinValue = 0x8000;
+		public const short MaxValue = 32767;
+		public const short MinValue = -32768;
 
 		#region IEquatable implementation
 
@@ -26,7 +26,7 @@ namespace System
 			if (obj == null)
 				return false;
 
-			if (obj as short == null)
+			if (!(obj is short))
 				return false;
 
 			return Equals ((short)obj);
@@ -44,7 +44,7 @@ namespace System
 		#region IComparable implementation
 		public int CompareTo (object o)
 		{
-			if (o as short == null)
+			if (!(o is short))
 				throw new ArgumentException ();
 
 			if (o == null)
