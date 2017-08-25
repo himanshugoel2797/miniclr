@@ -61,7 +61,10 @@ namespace System
 
 		public override int GetHashCode ()
 		{
-			return base.GetHashCode ();
+			if (this)
+				return 1;
+			else
+				return 0;
 		}
 
 

@@ -18,7 +18,7 @@ namespace System
 
 		public override int GetHashCode ()
 		{
-			return base.GetHashCode ();
+			return (int)this;
 		}
 
 		public override bool Equals (object obj)

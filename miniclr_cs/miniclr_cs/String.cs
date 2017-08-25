@@ -13,6 +13,14 @@ namespace System
 		public static String Concat(params string[] a){
 			return "";
 		}
+
+		public int Length {get;}
+
+		public char this [int idx] {
+			get{
+				return '0';
+			}
+		}
 	}
 }
 

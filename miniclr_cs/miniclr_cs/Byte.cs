@@ -56,18 +56,9 @@ namespace System
 		}
 		#endregion
 
-		#region IFormattable implementation
-
-		public string ToString (string format, IFormatProvider formatProvider)
-		{
-			throw new NotImplementedException ();
-		}
-
-		#endregion
-
 		public override int GetHashCode ()
 		{
-			return base.GetHashCode ();
+			return (int)this;
 		}
 
 		public string ToString (IFormatProvider provider) {

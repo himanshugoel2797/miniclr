@@ -86,6 +86,11 @@
     <Compile Include="Collections\IList.cs" />
     <Compile Include="Runtime\CompilerServices\MethodImplAttribute.cs" />
     <Compile Include="Runtime\CompilerServices\MethodImplOptions.cs" />
+    <Compile Include="GC.cs" />
+    <Compile Include="Reflection\MethodInfo.cs" />
+    <Compile Include="ArgumentNullException.cs" />
+    <Compile Include="ArgumentOutOfRangeException.cs" />
+    <Compile Include="Console.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
