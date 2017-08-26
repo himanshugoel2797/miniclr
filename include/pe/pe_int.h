@@ -9,8 +9,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "metadata.h"
-
 #define PE_MAGIC_0_0 0x4D
 #define PE_MAGIC_0_1 0x5A
 

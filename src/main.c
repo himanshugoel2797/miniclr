@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "pe/metadata_int.h"
 #include "pe/pe.h"
 #include "pe/pe_info.h"
 
-#include "pe/metadata_int.h"
+#include "runtime/runtime.h"
 
 void help(const char *pname) {
   printf("%s [options] [executable]\n"
@@ -24,6 +25,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Initialize the runtime
+  Runtime_Initialize();
 
   // Parse arguments
   for (int i = 1; i < argc; i++) {
@@ -51,6 +53,8 @@ int main(int argc, char *argv[]) {
     PEInfo info;
     printf("RetVal: %d\n", PE_LoadData(data, pos, argv, argc, &info));
 
+    Runtime_LoadAssembly(&info);
+
     // Parse Assembly metadata if present
 
     MD_AssemblyRef assem;
@@ -60,6 +64,7 @@ int main(int argc, char *argv[]) {
     printf("%s\r\n", Metadata_GetString(&info, assem.name));
 
     // Parse and load AssemblyRef metadata
+
 
     // mscorlib is external with builtin functions used as PInvoke calls.
 

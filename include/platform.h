@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "pe/pe_info.h"
 
 #ifdef __linux__
 
@@ -44,5 +45,7 @@
 #if !defined(p_memtole32) | !defined(p_memtole16)
 #error "p_memtole functions not defined"
 #endif
+
+int Platform_LoadAssembly(const char *assemblyName, PEInfo *info);
 
 #endif

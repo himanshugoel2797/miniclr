@@ -6,12 +6,12 @@
 #ifndef PEINFO_H_
 #define PEINFO_H_
 
-#include "cli_file_types.h"
-#include "pe_int.h"
-#include "runtime/runtime.h"
 #include <stdint.h>
+#include "cli_file_types.h"
+#include "metadata_info.h"
+#include "pe_int.h"
 
-struct PEInfo {
+typedef struct PEInfo {
   uint8_t *data;
   size_t sz;
   char **argv;
@@ -27,6 +27,6 @@ struct PEInfo {
   CLIHeader *cli_hdr;
 
   Metadata mdata;
-};
+} PEInfo;
 
 #endif

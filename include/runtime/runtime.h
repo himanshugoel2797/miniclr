@@ -14,7 +14,7 @@ typedef struct TypeInformation {
 } TypeInformation;
 
 typedef struct AssemblyInformation {
-  struct uint32_t *references;
+  uint32_t *references;
   TypeInformation *types;
   uint64_t *compiled_mthds;
   PEInfo *info;
@@ -30,7 +30,9 @@ int Runtime_Initialize(void);
 
 int Runtime_LoadAssembly(PEInfo *info);
 
-int Runtime_GenerateCode(uint32_t token);
+int Runtime_BuildVTable(uint32_t token, TypeInformation *type);
+
+int Runtime_GenerateCode(uint32_t token, uint64_t *code_addr);
 
 int Runtime_GenerateType(uint32_t token);
 
