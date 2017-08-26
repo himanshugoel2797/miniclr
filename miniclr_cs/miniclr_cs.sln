@@ -3,15 +3,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "corlib", "miniclr_cs\corlib.csproj", "{EE032C31-2E23-4083-9FCF-D6751E3A94B3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestApplications", "TestApplications", "{37B60CA7-EC4D-4345-8F23-E021AAFE47D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld", "HelloWorld\HelloWorld.csproj", "{6CCAF00B-7B84-46B7-90BF-252BD682562E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6CCAF00B-7B84-46B7-90BF-252BD682562E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CCAF00B-7B84-46B7-90BF-252BD682562E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CCAF00B-7B84-46B7-90BF-252BD682562E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CCAF00B-7B84-46B7-90BF-252BD682562E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EE032C31-2E23-4083-9FCF-D6751E3A94B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EE032C31-2E23-4083-9FCF-D6751E3A94B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE032C31-2E23-4083-9FCF-D6751E3A94B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE032C31-2E23-4083-9FCF-D6751E3A94B3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6CCAF00B-7B84-46B7-90BF-252BD682562E} = {37B60CA7-EC4D-4345-8F23-E021AAFE47D3}
 	EndGlobalSection
 EndGlobal

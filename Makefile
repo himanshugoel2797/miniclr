@@ -1,6 +1,6 @@
 TARGET=miniclr
 
-OBJS=src/main.o src/pe/pe.o src/pe/metadata.o
+OBJS=src/main.o src/pe/pe.o src/pe/metadata.o src/btree.o src/list.o
 
 CFLAGS= -g -std=c11 -Iinclude
 

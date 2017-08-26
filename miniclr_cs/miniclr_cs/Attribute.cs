@@ -3,6 +3,8 @@
 namespace System
 {
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = false, Inherited = true)]
+	[CLSCompliant(true)]
+	[Serializable]
 	public class Attribute
 	{
 		//TODO: Finish implementation

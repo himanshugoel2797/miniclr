@@ -6,14 +6,14 @@
     <ProjectGuid>{EE032C31-2E23-4083-9FCF-D6751E3A94B3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>System</RootNamespace>
-    <AssemblyName>miniclr_cs</AssemblyName>
+    <AssemblyName>corlib</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\..</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -24,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\..</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -91,6 +91,15 @@
     <Compile Include="ArgumentNullException.cs" />
     <Compile Include="ArgumentOutOfRangeException.cs" />
     <Compile Include="Console.cs" />
+    <Compile Include="Reflection\AssemblyTitle.cs" />
+    <Compile Include="Reflection\AssemblyDescription.cs" />
+    <Compile Include="Reflection\AssemblyConfiguration.cs" />
+    <Compile Include="Reflection\AssemblyCompany.cs" />
+    <Compile Include="Reflection\AssemblyProduct.cs" />
+    <Compile Include="Reflection\AssemblyCopyright.cs" />
+    <Compile Include="Reflection\AssemblyTrademark.cs" />
+    <Compile Include="Reflection\AssemblyCulture.cs" />
+    <Compile Include="Reflection\AssemblyVersion.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
