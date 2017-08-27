@@ -19,6 +19,10 @@ ListError List_AddEntry(List *a, void *value);
 
 uint64_t List_Length(List *a);
 
+void List_Lock(List *a);
+
+void List_Unlock(List *a);
+
 void List_Remove(List *a, uint64_t index);
 
 void List_Free(List *a);

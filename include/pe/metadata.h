@@ -64,4 +64,6 @@ size_t Metadata_GetItemSize(PEInfo *info, MetadataType t);
 
 uint32_t Metadata_GetItemCount(PEInfo *info, MetadataType t);
 
+uint32_t Metadata_GetItemIndex(uint32_t token);
+
 #endif

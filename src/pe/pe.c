@@ -44,6 +44,8 @@ PE_LoadData(uint8_t *data, size_t data_len, char **argv, int argc, PEInfo *info)
     PESectionHeader *section_hdr = NULL;
     PEDataDirectory *import_table_ddir = NULL, *import_addr_table_ddir = NULL, *cli_hdr_ddir = NULL;
 
+    memset(info, 0, sizeof(PEInfo));
+
     //Parse the program and find the relevant .NET sections and save their offsets
     if(PE_MAGIC_0_0 != data[0] | PE_MAGIC_0_1 != data[1]) {
         return -1;  //Not a valid PE file

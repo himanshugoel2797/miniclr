@@ -14,7 +14,6 @@
 #include "pe/pe_int.h"
 #include "platform.h"
 
-static int specialCodingSize[SPECIAL_CODING_COUNT];
 
 int Metadata_Load(PEInfo *info) {
   uint32_t metadata_root_off = 0, metadata_str_name_len = 0;
@@ -85,6 +84,8 @@ int Metadata_Load(PEInfo *info) {
 
   for (int i = 0; i < METADATA_STREAM_COUNT; i++) {
     info->mdata.metadata_stream_rows[i] = 0;
+    info->mdata.metadata_streams[i] = 0;
+
     if ((1ull << i) & mdata_strm_hdr->valid) {
       info->mdata.metadata_stream_rows[i] = mdata_strm_hdr->rows[row_idx];
       row_idx++;
@@ -95,12 +96,9 @@ int Metadata_Load(PEInfo *info) {
   for (int i = 0;
        i < METADATA_STREAM_COUNT && row_idx < bitcntll(mdata_strm_hdr->valid);
        i++) {
-
-    info->mdata.metadata_stream_rows[i] = 0;
-
+           
     if ((1ull << i) & mdata_strm_hdr->valid) {
       info->mdata.metadata_streams[i] = cur_off;
-      info->mdata.metadata_stream_rows[i] = mdata_strm_hdr->rows[row_idx];
       cur_off += Metadata_GetItemSize(info, i) * mdata_strm_hdr->rows[row_idx];
       row_idx++;
     }
@@ -271,7 +269,7 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
         char *coding = specialCoding[*rep - '0'];
 
         uint32_t val = 0;
-        if (specialCodingSize[*rep - '0'] == sizeof(uint16_t)) {
+        if (info->mdata.specialCodingSize[*rep - '0'] == sizeof(uint16_t)) {
           append_uint16(targetData, baseData);
           baseData += sizeof(uint16_t);
         } else {
@@ -406,7 +404,7 @@ size_t Metadata_GetItemSize(PEInfo *info, MetadataType t) {
           coding++;
         }
 
-        specialCodingSize[*rep - '0'] = netSize;
+        info->mdata.specialCodingSize[*rep - '0'] = netSize;
         sz += netSize;
       }
     }
@@ -440,4 +438,9 @@ void *Metadata_GetMethodBody(PEInfo *info, uint32_t token) {
   // TODO: the JIT engine emits a call to its code generation routines for calls
   // that haven't been resolved yet, patching out the call once it has been
   // resolved.
+}
+
+
+uint32_t Metadata_GetItemIndex(uint32_t token) {
+    return token & 0xFFFFFF;
 }

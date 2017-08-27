@@ -26,6 +26,7 @@ typedef struct {
     uint8_t *metadata_stream_data;
     uint32_t metadata_streams[METADATA_STREAM_COUNT];
     uint32_t metadata_stream_rows[METADATA_STREAM_COUNT];
+    int specialCodingSize[15];
   } Metadata;
   
 #endif

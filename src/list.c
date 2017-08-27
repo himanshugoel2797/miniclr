@@ -206,3 +206,11 @@ uint64_t List_GetLastIndex(List *a) {
   UnlockSpinlock(a->spin);
   return i;
 }
+
+void List_Lock(List *a) {
+
+}
+
+void List_Unlock(List *a) {
+  
+}

@@ -55,16 +55,7 @@ int main(int argc, char *argv[]) {
 
     Runtime_LoadAssembly(&info);
 
-    // Parse Assembly metadata if present
-
-    MD_AssemblyRef assem;
-    Metadata_GetObject(&info, Metadata_BuildToken(MetadataType_AssemblyRef, 1),
-                       &assem);
-
-    printf("%s\r\n", Metadata_GetString(&info, assem.name));
-
-    // Parse and load AssemblyRef metadata
-
+    printf("%d\r\n", Runtime_CallMethodByName("corlib", "WriteLine"));
 
     // mscorlib is external with builtin functions used as PInvoke calls.
 

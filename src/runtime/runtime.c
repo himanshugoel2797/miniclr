@@ -40,12 +40,12 @@ int Runtime_LoadAssembly(PEInfo *info) {
     MD_AssemblyRef assem_ref;
     Metadata_GetObject(info, Metadata_BuildToken(MetadataType_AssemblyRef, i + 1), &assem_ref);
 
-    PEInfo ref_info;
-    if(Platform_LoadAssembly(Metadata_GetString(info, assem_ref.name), &ref_info) != 0){
+    PEInfo *ref_info = p_malloc(sizeof(PEInfo));
+    if(Platform_LoadAssembly(Metadata_GetString(info, assem_ref.name), ref_info) != 0){
         printf("ERROR: Can't find referenced assembly.\r\n");
         exit(0);
     }
-    a_info->references[i] = Runtime_LoadAssembly(&ref_info);
+    a_info->references[i] = Runtime_LoadAssembly(ref_info);
   }
 
   // Setup static methods
@@ -64,7 +64,7 @@ int Runtime_LoadAssembly(PEInfo *info) {
 
 int Runtime_BuildVTable(uint32_t token, TypeInformation *type) { return 0; }
 
-int Runtime_GenerateCode(uint32_t token, uint64_t *code_addr) { 
+int Runtime_GenerateCode(int assembly_idx, uint32_t token, uint64_t *code_addr) { 
     return 0; 
 }
 
@@ -73,9 +73,17 @@ int Runtime_GenerateType(uint32_t token) { return 0; }
 int Runtime_CallMethodByTokenAssemblyIndex(int assembly_idx, uint32_t token) {
 
     //Generate the method's code if it hasn't been generated
+    AssemblyInformation *assem = List_EntryAt(modules, assembly_idx);
+    uint32_t idx = Metadata_GetItemIndex(token);
 
+    if(assem->compiled_mthds[idx] == NULL) {
+        if(Runtime_GenerateCode(assembly_idx, token, NULL) != 0)
+            return -1;
+    }
+    
     //Call the method
-
+    //TODO: this can only happen once the calling convention is figured out.
+    
     return 0;
 }
 
@@ -85,5 +93,40 @@ int Runtime_CallMethodByToken(const char *assembly_name, uint32_t token) {
 }
 int Runtime_CallMethodByName(const char *assembly_name, const char *method_name) {
     //Resolve the assembly and function and call 'CallMethodByTokenAssemblyIndex'
-    return 0;
+    uint64_t assem_idx = -1;
+    AssemblyInformation *assem = NULL;
+
+    List_Lock(modules);
+    uint64_t len = List_Length(modules);
+    for(uint64_t i = 0; i < len; i++) {
+        assem = List_EntryAt(modules, i);
+        MD_Assembly assem_info;
+        Metadata_GetObject(assem->info, Metadata_BuildToken(MetadataType_Assembly, 1), &assem_info);
+
+        printf("%s\r\n", Metadata_GetString(assem->info, assem_info.name));
+        if(strcmp(Metadata_GetString(assem->info, assem_info.name), assembly_name) == 0) {
+            assem_idx = i;
+            break;
+        }
+    }
+    List_Unlock(modules);
+
+    if(assem_idx == -1)
+        return -1;
+
+    if(assem == NULL)
+        return -1;
+
+
+    for (uint64_t i = 0; i < Metadata_GetItemCount(assem->info, MetadataType_MethodDef); i++) {
+        MD_MethodDef mthd_def;
+        uint32_t tkn = Metadata_BuildToken(MetadataType_MethodDef, i + 1);
+        Metadata_GetObject(assem->info, tkn, &mthd_def);
+
+        if(strcmp(Metadata_GetString(assem->info, mthd_def.name), method_name) == 0) {
+            return Runtime_CallMethodByTokenAssemblyIndex(assem_idx, tkn);
+        }
+    }
+
+    return -1;
 }
