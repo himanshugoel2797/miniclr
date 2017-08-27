@@ -65,6 +65,29 @@ int Runtime_LoadAssembly(PEInfo *info) {
 int Runtime_BuildVTable(uint32_t token, TypeInformation *type) { return 0; }
 
 int Runtime_GenerateCode(int assembly_idx, uint32_t token, uint64_t *code_addr) { 
+    AssemblyInformation *assem = List_EntryAt(modules, assembly_idx);
+    MD_MethodDef mdef;
+
+    Metadata_GetObject(assem->info, token, &mdef);
+    //Build a list of parameters
+    //First parameter is the instance reference for non-static methods
+    //TODO: Need to build vtables and field tables first.
+    //TODO: vtables are static
+    //TODO: fields are however, not
+    //TODO: track offsets for inherited interfaces
+
+    if(mdef.implFlags & MethodImplAttributes_InternalCall){
+        printf("Internal Call\r\n");
+        //TODO: Lookup internal call by class name and function name
+        return 0;
+    }
+
+    //TODO: Parse exception data
+
+    //TODO: Translate instruction sequences using lookup tables.
+    //TODO: Attempt to inline short functions
+    //TODO: Add built-in function recognized by the JIT to emit specified instruction sequences
+    
     return 0; 
 }
 
