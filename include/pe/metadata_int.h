@@ -467,7 +467,7 @@ static char *metadataTypeFields[] = {"sSGGG",  // Module
                                      "ssS", // Param
                                      "T0",  // InterfaceImpl
                                      "8SB", // MemberRef
-                                     "u1B", // Constant
+                                     "s1B", // Constant
                                      "3<B", // CustomAttribute
                                      "6B",  // FieldMarshal
                                      "s5B", // DeclSecurity

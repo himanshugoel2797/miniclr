@@ -103,7 +103,6 @@ int Runtime_CallMethodByName(const char *assembly_name, const char *method_name)
         MD_Assembly assem_info;
         Metadata_GetObject(assem->info, Metadata_BuildToken(MetadataType_Assembly, 1), &assem_info);
 
-        printf("%s\r\n", Metadata_GetString(assem->info, assem_info.name));
         if(strcmp(Metadata_GetString(assem->info, assem_info.name), assembly_name) == 0) {
             assem_idx = i;
             break;
