@@ -61,29 +61,40 @@ typedef enum {
 } AssemblyFlags;
 
 typedef enum {
-  TypeAttributes_NotPublic = 0x0000,
-  TypeAttributes_Public = 0x0001,
-  TypeAttributes_NestedPublic = 0x0002,
-  TypeAttributes_NestedPrivate = 0x0003,
-  TypeAttributes_NestedFamily = 0x0004,
-  TypeAttributes_NestedAssembly = 0x0005,
-  TypeAttributes_NestedFamANDAssem = 0x0006,
-  TypeAttributes_NestedFamORAssem = 0x0007,
-  TypeAttributes_AutoLayout = 0x0000,
-  TypeAttributes_SequentialLayout = 0x0008,
-  TypeAttributes_ExplicitLayout = 0x0010,
-  TypeAttributes_Class = 0x0000,
-  TypeAttributes_Interface = 0x0020,
+  TypeAttributes_VisibilityMask = 0x0007,
+  TypeAttributes_VisibilityMask_NotPublic = 0x0000,
+  TypeAttributes_VisibilityMask_Public = 0x0001,
+  TypeAttributes_VisibilityMask_NestedPublic = 0x0002,
+  TypeAttributes_VisibilityMask_NestedPrivate = 0x0003,
+  TypeAttributes_VisibilityMask_NestedFamily = 0x0004,
+  TypeAttributes_VisibilityMask_NestedAssembly = 0x0005,
+  TypeAttributes_VisibilityMask_NestedFamANDAssem = 0x0006,
+  TypeAttributes_VisibilityMask_NestedFamORAssem = 0x0007,
+
+  TypeAttributes_ClassLayout = 0x0018,
+  TypeAttributes_ClassLayout_AutoLayout = 0x0000,
+  TypeAttributes_ClassLayout_SequentialLayout = 0x0008,
+  TypeAttributes_ClassLayout_ExplicitLayout = 0x0010,
+
+  TypeAttributes_ClassSemantics = 0x0020,
+  TypeAttributes_ClassSemantics_Class = 0x0000,
+  TypeAttributes_ClassSemantics_Interface = 0x0020,
+
   TypeAttributes_Abstract = 0x0080,
   TypeAttributes_Sealed = 0x0100,
   TypeAttributes_SpecialName = 0x0400,
+
   TypeAttributes_Import = 0x1000,
   TypeAttributes_Serializable = 0x2000,
-  TypeAttributes_AnsiClass = 0x0000,
-  TypeAttributes_UnicodeClass = 0x10000,
-  TypeAttributes_AutoClass = 0x20000,
-  TypeAttributes_CustomFormatClass = 0x30000,
+
+  TypeAttributes_StringFormatMask = 0x30000,
+  TypeAttributes_StringFormatMask_AnsiClass = 0x0000,
+  TypeAttributes_StringFormatMask_UnicodeClass = 0x10000,
+  TypeAttributes_StringFormatMask_AutoClass = 0x20000,
+  TypeAttributes_StringFormatMask_CustomFormatClass = 0x30000,
+
   TypeAttributes_BeforeFieldInit = 0x100000,
+
   TypeAttributes_RTSpecialName = 0x0800,
   TypeAttributes_HasSecurity = 0x40000,
   TypeAttributes_IsTypeForwarder = 0x200000,

@@ -14,7 +14,6 @@
 #include "pe/pe_int.h"
 #include "platform.h"
 
-
 int Metadata_Load(PEInfo *info) {
   uint32_t metadata_root_off = 0, metadata_str_name_len = 0;
   uint8_t *metadata_table = NULL;
@@ -96,7 +95,7 @@ int Metadata_Load(PEInfo *info) {
   for (int i = 0;
        i < METADATA_STREAM_COUNT && row_idx < bitcntll(mdata_strm_hdr->valid);
        i++) {
-           
+
     if ((1ull << i) & mdata_strm_hdr->valid) {
       info->mdata.metadata_streams[i] = cur_off;
       cur_off += Metadata_GetItemSize(info, i) * mdata_strm_hdr->rows[row_idx];
@@ -133,6 +132,9 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
     return -1;
 
   idx--;
+
+  if (idx >= info->mdata.metadata_stream_rows[t])
+    return -2;
 
   MetadataStreamHeader *mdata_strm_hdr =
       (MetadataStreamHeader *)&info->data[info->mdata.metadata_root_off +
@@ -267,15 +269,19 @@ int Metadata_GetObject(PEInfo *info, uint32_t id, void *obj) {
       if (*rep >= '0' && *rep <= '>') {
         int bitCnt = specialCodingBitCnt[*rep - '0'];
         char *coding = specialCoding[*rep - '0'];
-
         uint32_t val = 0;
         if (info->mdata.specialCodingSize[*rep - '0'] == sizeof(uint16_t)) {
-          append_uint16(targetData, baseData);
+          append_uint16((uint8_t *)&val, baseData);
           baseData += sizeof(uint16_t);
         } else {
-          append_uint32(targetData, baseData);
+          append_uint32((uint8_t *)&val, baseData);
           baseData += sizeof(uint32_t);
         }
+
+        // Decode val and convert it into a token
+        uint32_t key = val & ~(0xFFFFFFFF << bitCnt);
+        *(uint32_t *)targetData =
+            Metadata_BuildToken(coding[key], val >> bitCnt);
       }
     } break;
     }
@@ -440,7 +446,4 @@ void *Metadata_GetMethodBody(PEInfo *info, uint32_t token) {
   // resolved.
 }
 
-
-uint32_t Metadata_GetItemIndex(uint32_t token) {
-    return token & 0xFFFFFF;
-}
+uint32_t Metadata_GetItemIndex(uint32_t token) { return token & 0xFFFFFF; }

@@ -7,10 +7,8 @@
 
 typedef struct TypeInformation {
   uint32_t *vtable;
-  uint32_t *static_mthds;
-
+  uint32_t flags;
   int vtable_cnt;
-  int static_mthds_cnt;
 } TypeInformation;
 
 typedef struct AssemblyInformation {
@@ -30,12 +28,12 @@ int Runtime_Initialize(void);
 
 int Runtime_LoadAssembly(PEInfo *info);
 
-int Runtime_BuildVTable(uint32_t token, TypeInformation *type);
+int Runtime_BuildVTable(int assembly_idx, uint32_t token,
+                        TypeInformation *type);
 
 int Runtime_GenerateCode(int assembly_idx, uint32_t token, uint64_t *code_addr);
 
-int Runtime_GenerateType(uint32_t token);
-
-int Runtime_CallMethodByName(const char *assembly_name, const char *method_name);
+int Runtime_CallMethodByName(const char *assembly_name,
+                             const char *method_name);
 
 #endif
