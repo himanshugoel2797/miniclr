@@ -67,15 +67,41 @@ int Runtime_LoadAssembly(PEInfo *info) {
   return assembly_idx;
 }
 
-int Runtime_ResolveTypeRef(uint32_t token, int *assembly_idx,
+int Runtime_ResolveTypeRef(int src_assem_idx, uint32_t token, int *assembly_idx,
                            uint32_t *assembly_tkn) {
-  return 0;
+  AssemblyInformation *assem = List_EntryAt(modules, src_assem_idx);
+  MD_TypeRef tref;
+  Metadata_GetObject(assem->info, token, &tref);
+  const char *srcName = Metadata_GetString(assem->info, tref.name);
+  const char *srcNs = Metadata_GetString(assem->info, tref.ns);
+
+  *assembly_idx = assem->references[Metadata_GetItemIndex(token) - 1];
+
+  AssemblyInformation *assem_targ = List_EntryAt(modules, *assembly_idx);
+  int type_cnt = assem_targ->type_cnt;
+  for (int i = 0; i < type_cnt; i++) {
+    MD_TypeDef tdef;
+    Metadata_GetObject(assem_targ->info,
+                       Metadata_BuildToken(MetadataType_TypeDef, i + 1), &tdef);
+
+    const char *dstName = Metadata_GetString(assem_targ->info, tdef.name);
+    const char *dstNs = Metadata_GetString(assem_targ->info, tdef.ns);
+
+    if (strcmp(srcName, dstName) == 0 && strcmp(srcNs, dstNs) == 0) {
+      *assembly_tkn = Metadata_BuildToken(MetadataType_TypeDef, i + 1);
+      return 0;
+    }
+  }
+
+  return -1;
 }
 
 int Runtime_BuildVTable(int assembly_idx, uint32_t token,
                         TypeInformation *type) {
 
   AssemblyInformation *assem = List_EntryAt(modules, assembly_idx);
+  if (assem->types[Metadata_GetItemIndex(token)].flags & TypePresentFlag)
+    return 0;
 
   // Determine the number and range of fields
   // Determine the number and range of methods
@@ -89,21 +115,88 @@ int Runtime_BuildVTable(int assembly_idx, uint32_t token,
     mthd_btm = ndef.methodList;
   }
 
-  type->flags = tdef.flags;
+  type->flags = tdef.flags | TypePresentFlag;
+
+  TypeInformation *parent_type = NULL;
 
   // Build the parent type chain.
-  if (Metadata_GetType(tdef.extends) == MetadataType_TypeDef &&
-      Metadata_GetItemIndex(token) < Metadata_GetItemIndex(tdef.extends)) {
+  if (Metadata_GetType(tdef.extends) == MetadataType_TypeDef) {
     Runtime_BuildVTable(assembly_idx, tdef.extends,
                         &assem->types[Metadata_GetItemIndex(tdef.extends) - 1]);
+
+    parent_type = &assem->types[Metadata_GetItemIndex(tdef.extends) - 1];
   } else if (Metadata_GetType(tdef.extends) == MetadataType_TypeRef) {
     // Resolve the type reference and build it's vtable if not done already.
+    int assem_idx = -1;
+    uint32_t assem_tdef_tkn = -1;
+
+    if (Runtime_ResolveTypeRef(assembly_idx, tdef.extends, &assem_idx,
+                               &assem_tdef_tkn) == 0) {
+      AssemblyInformation *assem_info = List_EntryAt(modules, assem_idx);
+      Runtime_BuildVTable(
+          assem_idx, assem_tdef_tkn,
+          &assem_info->types[Metadata_GetItemIndex(assem_tdef_tkn) - 1]);
+      parent_type =
+          &assem_info->types[Metadata_GetItemIndex(assem_tdef_tkn) - 1];
+    } else {
+      printf("ERROR: Cannot resolve type %x\r\n", tdef.extends);
+      exit(0);
+    }
   }
 
-  // Identify implemented interfaces and setup vtable with interface offsets
+  // Add the parent_type vtable
 
-  // Determine which methods implement interfaces and insert them into the
-  // associated slots
+  // Identify implemented interfaces and append them to the vtable
+  int interface_impl_cnt =
+      Metadata_GetItemCount(assem->info, MetadataType_InterfaceImpl);
+  for (int i = 0; i < interface_impl_cnt; i++) {
+    MD_InterfaceImpl interface_impl;
+    Metadata_GetObject(assem->info,
+                       Metadata_BuildToken(MetadataType_InterfaceImpl, i + 1),
+                       &interface_impl);
+
+    // TODO: Iterate over InterfaceImpl table in one go, filling the vtables
+    // manually
+    if (interface_impl.className == Metadata_GetItemIndex(token)) {
+
+      TypeInformation *interface = NULL;
+
+      // construct interfaces that haven't been examined yet
+      if (Metadata_GetType(interface_impl.interface) == MetadataType_TypeDef) {
+        Runtime_BuildVTable(
+            assembly_idx, interface_impl.interface,
+            &assem->types[Metadata_GetItemIndex(interface_impl.interface) - 1]);
+
+        interface =
+            &assem->types[Metadata_GetItemIndex(interface_impl.interface) - 1];
+
+      } else if (Metadata_GetType(interface_impl.interface) ==
+                 MetadataType_TypeRef) {
+        // Resolve the type reference and build it's vtable if not done already.
+        int assem_idx = -1;
+        uint32_t assem_tdef_tkn = -1;
+
+        if (Runtime_ResolveTypeRef(assembly_idx, interface_impl.interface,
+                                   &assem_idx, &assem_tdef_tkn) == 0) {
+          AssemblyInformation *assem_info = List_EntryAt(modules, assem_idx);
+          Runtime_BuildVTable(
+              assem_idx, assem_tdef_tkn,
+              &assem_info->types[Metadata_GetItemIndex(assem_tdef_tkn) - 1]);
+          interface =
+              &assem_info->types[Metadata_GetItemIndex(assem_tdef_tkn) - 1];
+        } else {
+          printf("ERROR: Cannot resolve type %x\r\n", interface_impl.interface);
+          exit(0);
+        }
+      }
+
+      // Add interface to list of implemented interfaces
+        }
+  }
+
+  // Need to be able to override virtual methods from the parent's vtable...
+  // TODO: maybe virtual and abstract methods are set at construction time
+  // TODO: for function calls, determine the highest matching call
 
   // Determine which methods override abstract/virtual methods, and put them
   // into their slots

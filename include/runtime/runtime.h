@@ -5,10 +5,14 @@
 #include "pe/pe_info.h"
 #include <stdint.h>
 
+#define TypePresentFlag (1 << 31)
+
 typedef struct TypeInformation {
   uint32_t *vtable;
+  uint32_t *fields;
   uint32_t flags;
   int vtable_cnt;
+  int field_cnt;
 } TypeInformation;
 
 typedef struct AssemblyInformation {

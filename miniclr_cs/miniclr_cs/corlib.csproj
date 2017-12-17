@@ -100,6 +100,11 @@
     <Compile Include="Reflection\AssemblyTrademark.cs" />
     <Compile Include="Reflection\AssemblyCulture.cs" />
     <Compile Include="Reflection\AssemblyVersion.cs" />
+    <Compile Include="Runtime\InteropServices\MarshalAsAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\UnmanagedType.cs" />
+    <Compile Include="Runtime\InteropServices\DllImportAttribute.cs" />
+    <Compile Include="Runtime\InteropServices\InAttribute.cs" />
+    <Compile Include="Runtime\Versioning\TargetFrameworkAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -110,5 +115,7 @@
     <Folder Include="Globalization\" />
     <Folder Include="Collections\Generic\" />
     <Folder Include="Runtime\CompilerServices\" />
+    <Folder Include="IO\" />
+    <Folder Include="Runtime\Versioning\" />
   </ItemGroup>
 </Project>

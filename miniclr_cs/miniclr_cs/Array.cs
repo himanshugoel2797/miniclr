@@ -8,7 +8,9 @@ namespace System
 	public class Array : ICloneable, IList, ICollection, IEnumerable
 	{
 		//TODO: Finish implementation
-		
+
+		public int Length {get;private set;}
+
 		#region IList implementation
 
 		public int Add (object value)
