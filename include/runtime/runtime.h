@@ -8,25 +8,27 @@
 #define TypePresentFlag (1 << 31)
 
 typedef struct TypeInformation {
-  uint32_t *vtable;
-  uint32_t *fields;
-  uint32_t flags;
-  int vtable_cnt;
-  int field_cnt;
+    uint32_t *vtable;
+    uint32_t *fields;
+    uint32_t flags;
+    int vtable_cnt;
+    int field_cnt;
 } TypeInformation;
 
 typedef struct AssemblyInformation {
-  uint32_t *references;
-  TypeInformation *types;
-  uint64_t *compiled_mthds;
-  PEInfo *info;
+    uint32_t *references;
+    TypeInformation *types;
+    uint64_t *compiled_mthds;
+    PEInfo *info;
 
-  int reference_cnt;
-  int type_cnt;
-  int compiled_mthd_cnt;
+    int reference_cnt;
+    int type_cnt;
+    int compiled_mthd_cnt;
 } AssemblyInformation;
 
-typedef struct { List *modules; } RuntimeInformation;
+typedef struct {
+    List *modules;
+} RuntimeInformation;
 
 int Runtime_Initialize(void);
 

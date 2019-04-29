@@ -7,10 +7,10 @@ typedef struct ListNode ListNode;
 typedef struct List List;
 
 typedef enum ListError {
-  ListError_None = 0,
-  ListError_AllocationFailed = (1 << 0),
-  ListError_EndOfList = (1 << 1),
-  ListError_Deleting = (1 << 2),
+    ListError_None = 0,
+    ListError_AllocationFailed = (1 << 0),
+    ListError_EndOfList = (1 << 1),
+    ListError_Deleting = (1 << 2),
 } ListError;
 
 List *List_Create(void);

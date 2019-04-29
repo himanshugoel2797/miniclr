@@ -12,21 +12,21 @@
 #include "pe_int.h"
 
 typedef struct PEInfo {
-  uint8_t *data;
-  size_t sz;
-  char **argv;
-  int argc;
-  uint32_t section_hdr_cnt;
+    uint8_t *data;
+    size_t sz;
+    char **argv;
+    int argc;
+    uint32_t section_hdr_cnt;
 
-  PEOptHeader *opt_hdr;
-  PESectionHeader *section_table;
+    PEOptHeader *opt_hdr;
+    PESectionHeader *section_table;
 
-  uint8_t *text;
-  uint8_t *import_table;
-  uint8_t *import_addr_table;
-  CLIHeader *cli_hdr;
+    uint8_t *text;
+    uint8_t *import_table;
+    uint8_t *import_addr_table;
+    CLIHeader *cli_hdr;
 
-  Metadata mdata;
+    Metadata mdata;
 } PEInfo;
 
 #endif
